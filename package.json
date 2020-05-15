@@ -10,6 +10,9 @@
   "dependencies": {
     "core-js": "^3.6.4",
     "three": "^0.115.0",
+    "three-css3drenderer": "^1.0.1",
+    "three-trackballcontrols": "0.0.8",
+    "three-tween": "^1.0.0",
     "vue": "^2.6.11"
   },
   "devDependencies": {

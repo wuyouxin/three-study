@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <demo1 />
+    <demo2 />
   </div>
 </template>
 
@@ -9,7 +9,8 @@ export default {
   name: 'App',
   components: {
     // 转动像机
-    demo1: () => import('./demo1.vue')
+    // demo1: () => import('./demo1.vue'),
+    demo2: () => import('./demo2.vue')
   }
 }
 </script>
