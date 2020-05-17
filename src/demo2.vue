@@ -1,17 +1,16 @@
 <template>
-  <div id="three"></div>
+  <div ref="three" id="three"></div>
 </template>
-
 <script>
 // 转动像机
 import * as THREE from 'three'
-import { CSS3DSprite, CSS3DRenderer } from 'three-css3drenderer'
+import { CSS3DSprite, CSS3DRenderer } from 'three/examples/jsm/renderers/CSS3DRenderer'
 import TWEEN from 'three-tween'
-import TrackballControls from 'three-trackballcontrols'
+import { TrackballControls } from 'three/examples/jsm/controls/TrackballControls'
 
 const PARTICLS_TOTAL = 512
 export default {
-  created () {
+  mounted () {
     this.objects = []
     this.positions = []
     this.current = 0
@@ -38,7 +37,6 @@ export default {
         this.transition()
       }, false)
       this.image.src = '/static/sprite.png'
-
       this.plane()
       this.cube()
       for (let i = 0; i < PARTICLS_TOTAL; i++) {
@@ -51,8 +49,8 @@ export default {
       this.sphere()
       this.renderer = new CSS3DRenderer()
       this.renderer.setSize(window.innerWidth, window.innerHeight)
-      document.body.appendChild(this.renderer.domElement)
-      this.controls = new TrackballControls(this.camera, this.renderer.document)
+      this.$refs.three.appendChild(this.renderer.domElement)
+      this.controls = new TrackballControls(this.camera, this.renderer.domElement)
       window.addEventListener('resize', this.onWindowResize, false)
     },
     render () {
@@ -98,9 +96,8 @@ export default {
     sphere () {
       const radius = 750
       for (let i = 0; i < PARTICLS_TOTAL; i++) {
-        var phi = Math.acos(-1 + (2 * i) / PARTICLS_TOTAL)
-        var theta = Math.sqrt(PARTICLS_TOTAL * Math.PI) * phi
-
+        const phi = Math.acos(-1 + (2 * i) / PARTICLS_TOTAL)
+        const theta = Math.sqrt(PARTICLS_TOTAL * Math.PI) * phi
         this.positions.push(
           radius * Math.cos(theta) * Math.sin(phi),
           radius * Math.sin(theta) * Math.sin(phi),
@@ -116,6 +113,7 @@ export default {
         const object = this.objects[i]
         new TWEEN.Tween(object.position)
           .to({
+            // 装了所有动画
             x: this.positions[j],
             y: this.positions[j + 1],
             z: this.positions[j + 2]
