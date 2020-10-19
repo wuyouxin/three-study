@@ -1,5 +1,5 @@
 <template>
-  <div ref="three" id="three"></div>
+  <div id="three" ref="three" />
 </template>
 <script>
 // 转动像机
@@ -43,7 +43,7 @@ export default {
         this.positions.push(
           Math.random() * 4000 - 2000,
           Math.random() * 4000 - 2000,
-          Math.random() * 4000 - 2000
+          Math.random() * 4000 - 2000,
         )
       }
       this.sphere()
@@ -101,7 +101,7 @@ export default {
         this.positions.push(
           radius * Math.cos(theta) * Math.sin(phi),
           radius * Math.sin(theta) * Math.sin(phi),
-          radius * Math.cos(phi)
+          radius * Math.cos(phi),
         )
       }
     },
@@ -116,7 +116,7 @@ export default {
             // 装了所有动画
             x: this.positions[j],
             y: this.positions[j + 1],
-            z: this.positions[j + 2]
+            z: this.positions[j + 2],
           }, Math.random() * duration + duration)
           .easing(TWEEN.Easing.Exponential.InOut)
           .start()
@@ -131,9 +131,9 @@ export default {
       this.renderer.setSize(window.innerWidth, window.innerHeight)
       this.camera.aspect = window.innerWidth / window.innerHeight
       this.camera.updateProjectionMatrix()
-    }
+    },
 
-  }
+  },
 }
 </script>
 

@@ -1,206 +1,223 @@
 <template>
-  <div id="three"></div>
+  <div class="plant-wrapper">
+    <div
+      ref="three"
+      style="height:100%;"
+    />
+    <div class="selete-wrapper">
+      <div class="title">厂区选择</div>
+      <div class="contetn">
+        <el-select
+          v-model="value"
+          style="width:100%;"
+          placeholder="请选择"
+        >
+          <el-option
+            v-for="item in options"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
+          />
+        </el-select>
+      </div>
+    </div>
+  </div>
 </template>
+
 <script>
-// 转动像机
 import * as THREE from 'three'
-// import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass'
-// import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass'
-// import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js'
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
-// import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js'
-// import { GUI } from 'three/examples/jsm/libs/dat.gui.module.js'
-
-const BLOOM_SCENE = 1
-// const vertexShader = `
-//     varying vec2 vUv;
-//     void main() {
-//       vUv = uv;
-//       gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
-//     }`
-// const fragmentShader = `
-//     uniform sampler2D baseTexture;
-//     uniform sampler2D bloomTexture;
-//     varying vec2 vUv;
-
-//     vec4 getTexture( sampler2D texelToLinearTexture ) {
-//       return mapTexelToLinear( texture2D( texelToLinearTexture , vUv ) );
-//     }
-//     void main() {
-//       gl_FragColor = ( getTexture( baseTexture ) + vec4( 1.0 ) * getTexture( bloomTexture ) );
-//     }
-// `
+import TWEEN from 'three-tween'
 export default {
+  data () {
+    return {
+      options: [{
+        value: '100001',
+        label: '炼钢厂',
+      }],
+      value: '100001',
+    }
+  },
   mounted () {
     this._initBase()
-    this.render()
-    this.createScene()
   },
   methods: {
+
     _initBase () {
-      // 透视像机
-      this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 5000)
-      // 像机位置
-      this.camera.position.set(0, 0, 20)
-      // 像机看的地方
+      this.camera = new THREE.PerspectiveCamera(43, this.$refs.three.clientWidth / this.$refs.three.clientHeight, 0.1, 30)
+
+      this.camera.position.set(0, 5, 12)
       this.camera.lookAt(0, 0, 0)
 
-      const helper = new THREE.CameraHelper(this.camera)
-      // 生成场景
       this.scene = new THREE.Scene()
-      // 背景色
-      this.scene.background = new THREE.Color('rgb(200,200,200)')
-      this.scene.add(helper)
-      // 添加灯光
-      this.scene.add(new THREE.AmbientLight(0x404040))
-      // const params = {
-      //   exposure: 1,
-      //   bloomStrength: 5,
-      //   bloomThreshold: 0,
-      //   bloomRadius: 0,
-      //   scene: 'Scene with Glow'
-      // }
-      // const renderScene = new RenderPass(this.scene, this.camera)
+      this.scene.background = new THREE.Color(0xDCDFE6)
+      //   this.scene.add(new THREE.AmbientLight(0x8dbdf7, 0.5))
 
-      // this.bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.5, 0.4, 0.85)
-      // this.bloomPass.threshold = params.bloomThreshold
-      // this.bloomPass.strength = params.bloomStrength
-      // this.bloomPass.radius = params.bloomRadius
+      const pointLight1 = new THREE.PointLight(0xdad6be, 3, 20)
+      pointLight1.position.set(9, 11, 8)
+      pointLight1.castShadow = true
+      this.scene.add(pointLight1)
 
-      // // 渲染器
+      const pointLight2 = new THREE.PointLight(0xEFEFEF, 2, 30)
+      pointLight2.position.set(-8, 13, -8)
+      pointLight2.castShadow = true
+      this.scene.add(pointLight2)
+
       this.renderer = new THREE.WebGLRenderer({ antialias: true })
-      // // 高动态 ?
-      // this.renderer.toneMapping = THREE.ReinhardToneMapping
-      this.renderer.setSize(window.innerWidth, window.innerHeight)
+      this.renderer.setSize(this.$refs.three.clientWidth, this.$refs.three.clientHeight)
+      this.renderer.shadowMap = true
 
-      // const bloomComposer = new EffectComposer(this.renderer)
-      // bloomComposer.renderToScreen = false
-      // bloomComposer.addPass(renderScene)
-      // bloomComposer.addPass(this.bloomPass)
-
-      // const finalPass = new ShaderPass(
-      //   new THREE.ShaderMaterial({
-      //     uniforms: {
-      //       baseTexture: { value: null },
-      //       bloomTexture: { value: bloomComposer.renderTarget2.texture }
-      //     },
-      //     vertexShader: vertexShader,
-      //     fragmentShader: fragmentShader,
-      //     defines: {}
-      //   }), 'baseTexture'
-      // )
-      // finalPass.needsSwap = true
-
-      // const finalComposer = new EffectComposer(this.renderer)
-      // finalComposer.addPass(renderScene)
-      // finalComposer.addPass(finalPass)
-
-      // this.raycaster = new THREE.Raycaster()
-
-      // this.mouse = new THREE.Vector2()
-
-      // window.addEventListener('click', this.onDocumentMouseClick, false)
-
-      // // // 轨迹球控件
       this.controls = new OrbitControls(this.camera, this.renderer.domElement)
-      this.controls.maxPolarAngle = Math.PI * 0.5
-      this.controls.minDistance = 1
-      this.controls.maxDistance = 100
-      // this.controls.addEventListener('change', this.render)
+      this.controls.maxPolarAngle = Math.PI * 0.48
+      this.controls.minPolarAngle = Math.PI * 0.18
+      this.controls.enablePan = false
+      this.controls.enableDamping = true
+      this.controls.minDistance = 2
+      this.controls.maxDistance = 20
+      this.controls.autoRotate = true
+      this.controls.autoRotateSpeed = 0.5
+      this.renderer.domElement.removeAttribute('tabindex')
+      this.$refs.three.appendChild(this.renderer.domElement)
 
-      // const gui = new GUI()
-      // gui.add(params, 'scene', ['Scene with Glow', 'Glow only', 'Scene only']).onChange(function (value) {
-      //   switch (value) {
-      //     case 'Scene with Glow':
-      //       bloomComposer.renderToScreen = false
-      //       break
-      //     case 'Glow only':
-      //       bloomComposer.renderToScreen = true
-      //       break
-      //     case 'Scene only':
-      //       // nothing to do
-      //       break
-      //   }
-      //   this.render()
-      // })
+      const loader = new GLTFLoader().setPath('/static/three-model/')
 
-      // const folder = gui.addFolder('Bloom Parameters')
+      loader.load('model.glb', gltf => {
+        gltf.scene.traverse(child => {
+          if (child.isMesh) {
+            if (child.name === 'Dizuo') {
+              const meshMeshStandardMaterial = new THREE.MeshStandardMaterial({
+                side: THREE.FrontSide,
+                color: 0x464646,
+                // 粗糙度属性
+                roughness: 0.9,
+              })
+              child.material = meshMeshStandardMaterial
+              child.castShadow = true
+            }
+            if (child.name === 'Qita') {
+              const meshMeshStandardMaterial = new THREE.MeshStandardMaterial({
+                side: THREE.FrontSide,
+                color: 0xc5c8ce,
+                // 粗糙度属性
+                roughness: 0.82,
+              })
+              child.material = meshMeshStandardMaterial
+              child.receiveShadow = true
+            }
+            if (child.name === 'Diyitai') {
+              const meshMeshStandardMaterial = new THREE.MeshStandardMaterial({
+                side: THREE.FrontSide,
+                color: 0x409EFF,
+                // 粗糙度属性
+                roughness: 0.65,
+              })
+              this.diyitai = child
+              child.material = meshMeshStandardMaterial
+              child.receiveShadow = true
 
-      // folder.add(params, 'exposure', 0.1, 2).onChange(function (value) {
-      //   this.renderer.toneMappingExposure = Math.pow(value, 4.0)
-      //   this.render()
-      // })
+              const random = (min, max) => {
+                if (isNaN(min) || isNaN(max)) {
+                  return null
+                }
+                if (min > max) {
+                  min ^= max
+                  max ^= min
+                  min ^= max
+                }
+                return (Math.random() * (max - min) | 0) + min
+              }
 
-      // folder.add(params, 'bloomThreshold', 0.0, 1.0).onChange(function (value) {
-      //   this.bloomPass.threshold = Number(value)
-      //   this.render()
-      // })
+              setInterval(() => {
+                const val = random(0, 10)
+                const calcVal = val / 10
+                const moveVal = 5 + (-10) * calcVal
+                this.tween(child, moveVal)
+              }, 5000)
+            }
+          }
+        })
 
-      // folder.add(params, 'bloomStrength', 0.0, 10.0).onChange(function (value) {
-      //   this.bloomPass.strength = Number(value)
-      //   this.render()
-      // })
+        window.addEventListener('resize', this.onWindowResize, false)
+        document.body.addEventListener('click', this.onMouseClick, false)
+        this.scene.add(gltf.scene)
+      })
 
-      // folder.add(params, 'bloomRadius', 0.0, 1.0).step(0.01).onChange(function (value) {
-      //   this.bloomPass.radius = Number(value)
-      //   this.render()
-      // })
+      const planeBufferGeometry = new THREE.PlaneBufferGeometry(200, 200)
+      planeBufferGeometry.castShadow = true
+      const plane = new THREE.Mesh(planeBufferGeometry, new THREE.MeshBasicMaterial({ color: 0xDCDFE6, side: true }))
+      plane.rotation.x = -Math.PI / 2
+      const gridHelper = new THREE.GridHelper(200, 200, 0xC0C4CC, 0xC0C4CC)
+      this.scene.add(plane)
+      this.scene.add(gridHelper)
 
-      document.body.appendChild(this.renderer.domElement)
-      window.addEventListener('resize', this.onWindowResize, false)
-    },
-    disposeMaterial (obj) {
-      if (obj.material) {
-        obj.material.dispose()
-      }
-    },
-    createScene () {
-      this.scene.traverse(this.disposeMaterial)
-      this.scene.children.length = 0
-      const geometry = new THREE.IcosahedronBufferGeometry(1, 2)
-      for (let i = 0; i < 50; i++) {
-        const color = new THREE.Color()
-        color.setHSL(Math.random(), 0.7, Math.random() * 0.2 + 0.05)
-        const material = new THREE.MeshBasicMaterial({ color: color })
-        const cubeEdges = new THREE.EdgesGeometry(geometry, 1)
-        // { color: 0xffffff, depthTest: false } 深度测试，若开启则是边框透明的效果
-        const edgesMtl = new THREE.LineBasicMaterial({ color: 0xffffff })
-        const cubeLine = new THREE.LineSegments(cubeEdges, edgesMtl)
-        const sphere = new THREE.Mesh(geometry, material)
-        sphere.add(cubeLine)
-        sphere.position.x = Math.random() * 14 - 5
-        sphere.position.y = Math.random() * 14 - 5
-        sphere.position.z = Math.random() * 14 - 5
-        this.scene.add(sphere)
-      }
       this.render()
     },
-    onDocumentMouseClick (event) {
-      event.preventDefault()
-      this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1
-      this.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1
 
-      this.raycaster.setFromCamera(this.mouse, this.camera)
-      const intersects = this.raycaster.intersectObjects(this.scene.children)
-      if (intersects.length > 0) {
-        var object = intersects[0].object
-        object.layers.toggle(BLOOM_SCENE)
-        this.render()
+    tween (child, tweenVal) {
+      new TWEEN.Tween(child.position).to({ x: tweenVal }, 5000).start()
+    },
+
+    onMouseClick (event) {
+      if (!this.$refs.three) return
+      event.preventDefault()
+      const mouse = new THREE.Vector2()
+      const raycaster = new THREE.Raycaster()
+      const { x = 210, y = 91 } = this.$refs.three.getBoundingClientRect()
+      mouse.x = ((event.clientX - x) / (this.$refs.three.clientWidth)) * 2 - 1
+      mouse.y = -((event.clientY - y) / (this.$refs.three.clientHeight)) * 2 + 1
+      raycaster.setFromCamera(mouse, this.camera)
+      const intersects = raycaster.intersectObject(this.diyitai)
+      if (intersects.length) {
+        this.diyitai.material.color.setHex(0xff0000)
+        setTimeout(() => {
+          this.$router.push({
+            path: '/RunningStatusMonitoring/views/RealTimeData/RealTimeData',
+          })
+        }, 500)
+      } else {
+        this.diyitai.material.color.setHex(0x409EFF)
       }
     },
     render () {
+      TWEEN.update()
       requestAnimationFrame(this.render)
-      // this.controls.update()
       this.renderer.render(this.scene, this.camera)
+      this.controls.update()
     },
     onWindowResize () {
-      this.renderer.setSize(window.innerWidth, window.innerHeight)
-      this.camera.aspect = window.innerWidth / window.innerHeight
+      if (!this.$refs.three) return
+      this.renderer.setSize(this.$refs.three.clientWidth, this.$refs.three.clientHeight)
+      this.camera.aspect = this.$refs.three.clientWidth / this.$refs.three.clientHeight
       this.camera.updateProjectionMatrix()
-    }
-
-  }
+    },
+  },
 }
 </script>
 
-<style lang="stylus" scoped></style>
+<style lang="stylus" scoped>
+.plant-wrapper
+  width 100%
+  height 100%
+  background #DCDFE6
+  .selete-wrapper
+    position absolute
+    top 30px
+    left 30px
+    overflow hidden
+    width 280px
+    height 76px
+    border-radius 6px
+    background #ffffff
+    .title
+      width 100%
+      height 34px
+      border-bottom 1px solid #c3c3c3
+      background #f8f8f9
+      text-align center
+      font-weight 500
+      font-size 15px
+      line-height 34px
+    .contetn
+      padding 4px
+</style>

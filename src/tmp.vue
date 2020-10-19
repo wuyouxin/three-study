@@ -1,5 +1,5 @@
 <template>
-  <div id="three"></div>
+  <div id="three" />
 </template>
 <script>
 // 转动像机
@@ -40,9 +40,9 @@ export default {
       this.renderer.setSize(window.innerWidth, window.innerHeight)
       this.camera.aspect = window.innerWidth / window.innerHeight
       this.camera.updateProjectionMatrix()
-    }
+    },
 
-  }
+  },
 }
 </script>
 
